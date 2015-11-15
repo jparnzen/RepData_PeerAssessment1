@@ -1,8 +1,15 @@
 # Reproducible Research: Peer Assessment 1
+John ARNZEN  
+
+Please see [](README.md) for a description of this assignment. Also please note that not all of its content is the same as the more up-to-date assignment description on coursera.org---I've used the coursera content for step headings and labels.
+
+**One last note**: the default directory for figures in my installation of R/RStudio + knitr is `PA1_template_files\figure-html\`, not `figures\` as mentioned in the assignment. I did not change this location.
 
 ## Loading and preprocessing the data
 
 ### 1. Load the data (i.e. read.csv())
+
+**We assume** that `activity.zip` has been downloaded and its content (`activity.csv`) has been unzipped into the same directory as this R markdown file.
 
 We load the data into a data table. Take a first look at the head and tail of it, and the column data types inferred by `fread()`.
 
@@ -43,7 +50,7 @@ str(dt)
 
 ### 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-We see that the `date` column is currently just a string although it is in ISO date format. We convert that column to R's `Date` type, and then get a summary view of the data table's columns. We're particularly interested in the statistics for the `steps` column.
+We see that the `date` column is currently just a string, although it is in ISO date format. We convert that column to R's `Date` type, and then get a summary view of the data table's columns. We're particularly interested in the statistics for the `steps` column.
 
 
 ```r
@@ -72,9 +79,14 @@ NOTE the `NA's` count for `steps`. We'll verify that count below.
 
 We start addressing this question by creating and processing a new data table based on our initial data table.
 
-We first strip all incomplete cases from original dataset -- we do this so that we're dealing only with non-NA steps values in our statistics. Keeping the NA steps can affect the data in one of two ways: if the statistics parameter `na.rm = FALSE`, then the statistics will result in `NA` if it encounters any NAs, invalidating the statistic; if the statistics parameter `na.rm = TRUE`, then dates with only NAs will return `0` (zero), which may not be correct and will increase the zero-bin count in the histogram. Either way our statistics will be skewed. While in our original data table it looks like all NAs occur in all intervals of certain days -- meaning the day itself is effectively NA -- there may be some chance that there's a steps value hidden amongst NAs for a day, so let's increase our chances of working with all valid data.
+We first strip all incomplete cases from original dataset---we do this so that we're dealing only with non-NA steps values in our statistics. Keeping the NA steps can affect the data in one of two ways:
 
-We then group the complete cases by date and then summarise the data into a new table containing dates and summations of steps per date date. Just to spot-check the values in the new table, let's get it's summary afterwards.
+* if the statistics parameter `na.rm = FALSE`, then the statistics will result in `NA` if it encounters any NAs, invalidating the statistic
+* if the statistics parameter `na.rm = TRUE`, then dates with only NAs will return `0` (zero), which may not be correct and will increase the zero-bin count in the histogram
+
+Either way our statistics will be skewed. While in our original data table it looks like all NAs occur in all intervals of certain days---meaning the day itself is effectively NA---there may be some chance that there's a `steps` value hidden amongst NAs for a day, so let's increase our chances of working with all valid data.
+
+We then group the complete cases by `date` and then summarise the data into a new table containing dates and summations of steps per date. Just to spot-check the values in the new table, we get it's summary afterwards.
 
 
 ```r
@@ -117,15 +129,23 @@ summary(ts)
 
 ### 2. Make a histogram of the total number of steps taken each day
 
+We use `ggplot2` to create the histogram (and other plots), assigning a `binwidth` to a range of 500 tallies to give us a decent granularity in the histogram.
+
 
 ```r
 library(ggplot2, warn.conflicts = FALSE)
-(p_ts <- ggplot(ts) + geom_histogram(aes(total_steps), binwidth = 500))
+
+(p_ts <- ggplot(ts) + 
+    geom_histogram(aes(total_steps), binwidth = 500) +
+    labs(title = "Histogram of Total Steps per Day",
+         x = "Total steps per day"))
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
 ### 3. Calculate and report the mean and median of the total number of steps taken per day
+
+This is fairly straight forward to do. We'll save these values in variables so that we can reuse them later if needed.
 
 
 ```r
@@ -163,7 +183,7 @@ In this case, the mean and median are so close that they essentially overlap in 
 
 We start by creating a data table to answer this question, following a path similar to what we did for the histogram above.
 
-We strip out all of the NAs from the original table, group the results by the intervals, and then create a new summarized table containing the average of each interval across all days. (Just for comparison, we also calculate the median of the steps per interval.)
+We strip out all of the NAs from the original table, group the results by the `interval`s, and then create a new summarized table containing the average of each interval across all days. (Just for comparison, we also calculate the median of the steps per interval.)
 
 
 ```r
@@ -208,21 +228,24 @@ summary(it)
 ##  Max.   :2355.0   Max.   :206.170   Max.   :60.000
 ```
 
-Now let's plot it out. Because the intervals are numeric representations of time of day (hours and minutes), ggplot will think the intervals are continuous instead of discrete. This will introduce gaps in the graph between the 55 and the next hundred value. To get around this we coerce the intervals into a factor and then adjust the X-axis scale to show ticks for every 2 hours. To help with the visualization, we also include points on the line.
+Now let's plot it out. Because the `interval`s are numeric representations of time of day (hours and minutes), `ggplot()` will think the intervals are continuous instead of discrete. This will introduce gaps in the graph between the 55 and the next hundred value. To get around this we coerce the intervals into a factor and then adjust the X-axis scale to show ticks for every 2 hours. To help with the visualization, we also include points on the line.
 
 
 ```r
 ggplot(it, aes(as.factor(interval), avg_steps)) + 
     geom_line(aes(group = 1)) +
     geom_point() +
-    scale_x_discrete(breaks = seq(0, 2400, 200))
+    scale_x_discrete(breaks = seq(0, 2400, 200)) +
+    labs(title = "Average Steps per Interval, Across All Days",
+         x = "Intervals (time of day, 5 minute intervals)",
+         y = "Average steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
 
 ### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-We get the interval of interest by filtering the table to where the maximum average occurs.
+We get the interval of interest by filtering the data table to where the maximum average occurs.
 
 
 ```r
@@ -251,6 +274,7 @@ dt[is.na(steps), .N]
 ```
 ## [1] 2304
 ```
+
 NOTE that this matches the NA count in the `summary(dt)` output above.
 
 ### 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
@@ -261,7 +285,7 @@ A quick manual perusal of the NAs, and calculations on their count compared to t
 
 We're still working with intervals per day though, so it wouldn't make much sense to use the daily average for each interval without severely skewing the results.
 
-* We could however divide the daily average by the number of intervals per day to distribute the average uniformly across the day. We could do the same with the daily median.
+* We could divide the daily average by the number of intervals per day to distribute the average uniformly across the day. We could do the same with the daily median.
 * We could fill the NAs with zero values, but then we'd be making assumptions that missing values mean no movement.
 * We could use some form of mean or median for each interval to fill the NAs.
     * Using the interval means might work, but it might also affect the variance and standard deviation of the data adversely.
@@ -271,6 +295,8 @@ We're still working with intervals per day though, so it wouldn't make much sens
 For this assignment, let's use the **median steps per interval** that we calculated with the means above to fill in our NAs and see what happens.
 
 ### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+We create a copy of the original data table because `data.table` seems to assign by reference rather than by value. With this copied data table, we iterate over it looking for NAs in the `step` column. If we find an NA, we copy the corresponding `interval` median steps value from the previously created steps-per-interval table (`it`).
 
 
 ```r
@@ -287,6 +313,7 @@ for (i in seq_len(nrow(dt_filled))) {
 
 Confirm we don't have any more NAs in the new data table.
 
+
 ```r
 dt_filled[is.na(steps)]
 ```
@@ -296,6 +323,7 @@ dt_filled[is.na(steps)]
 ```
 
 Compare the summary for our filled data table with that of the original one to see how the statistics changed.
+
 
 ```r
 summary(dt_filled)
@@ -328,6 +356,8 @@ summary(dt)
 
 ### 4. Make a histogram of the total number of steps taken each day, and calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
+We follow the pattern used above to create the total steps histogram, but using our new filled/imputed steps data table.
+
 
 ```r
 (ts_filled <- dt_filled %>%
@@ -353,6 +383,9 @@ summary(dt)
 ## ..        ...         ...
 ```
 
+Let's check the stats for the data, and compare it to the non-imputed total steps data from before.
+
+
 ```r
 summary(ts_filled)
 ```
@@ -368,11 +401,35 @@ summary(ts_filled)
 ```
 
 ```r
-(p_ts_filled <- ggplot(ts_filled) + 
-        geom_histogram(aes(total_steps), binwidth = 500))
+summary(ts)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-15-1.png) 
+```
+##       date             total_steps   
+##  Min.   :2012-10-02   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 8841  
+##  Median :2012-10-29   Median :10765  
+##  Mean   :2012-10-30   Mean   :10766  
+##  3rd Qu.:2012-11-16   3rd Qu.:13294  
+##  Max.   :2012-11-29   Max.   :21194
+```
+
+Our imputed total steps data now looks like this:
+
+
+```r
+(p_ts_filled <- ggplot(ts_filled) +
+    geom_histogram(aes(total_steps), binwidth = 500) +
+    labs(title = "Histogram of Imputed Total Steps per Day",
+         x = "Total steps per day"))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-17-1.png) 
+
+The only noticible difference is a new histogram column around 1000-1500 total steps.
+
+Here are our imputed mean and median statistics:
+
 
 ```r
 (ts_filled_mean <- mean(ts_filled$total_steps))
@@ -390,41 +447,97 @@ summary(ts_filled)
 ## [1] 10395
 ```
 
+Let's compare our imputed mean and median with the previous non-imputed mean and median. The non-imputed mean and median are the vertical grey dashed and solid lines respectively, and our imputed mean and median are the vertical red dashed and solid lines respectively.
+
+
 ```r
 (p_ts_filled_stats <- p_ts_filled + 
     geom_vline(aes(xintercept = ts_filled_median), color = "red", linetype = "solid") +
     geom_vline(aes(xintercept = ts_filled_mean), color = "red", linetype = "dashed") +
     geom_vline(aes(xintercept = ts_median), color = "grey50", linetype = "solid") +
     geom_vline(aes(xintercept = ts_mean), color = "grey50", linetype = "dashed"))
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-19-1.png) 
+
+We can see that imputing with the median steps reduced our mean and median somewhat, and increased the gap between their values.
+
+Just for comparison, here are the non-imputed histogram and imputed histogram side-by-side.
+
+
+```r
 ## adapted from Hadley Wickham's "ggplot2" book, p. 154
 library(grid, warn.conflicts = FALSE)
 pushViewport(viewport(layout = grid.layout(1, 2)))
 vplayout <- function(x, y)
   viewport(layout.pos.row = x, layout.pos.col = y)
-print(p_ts_stats + scale_y_continuous(limits = c(0,8)), vp = vplayout(1, 1))
+print(p_ts_stats + ylim(0,8), vp = vplayout(1, 1))
 print(p_ts_filled_stats, vp = vplayout(1, 2))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-15-2.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-20-1.png) 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 ### 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
+We copy our original data table, adding new columns identifying the day of the week (`DOW`) for the `date`, and then categorizing those `DOW`s as either weekday or weekend in a new column for `day_type`. We then factorize those columns, including ordering the `DOW` factors from Sunday to Saturday.
+
 
 ```r
-dt_days <- dt %>%
+(dt_days <- dt %>%
     mutate(DOW = weekdays(date)) %>%
     mutate(day_type = ifelse(DOW %in% c("Saturday", "Sunday"), 
                              "weekend", 
-                             "weekday"))
+                             "weekday")))
 
 dt_days$DOW <- factor(dt_days$DOW, levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"), ordered = TRUE)
 dt_days$day_type <- as.factor(dt_days$day_type)
 ```
 
-### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+Let's take a peek at the structure and summary of our new data table to make sure it column types look good, and to see counts of weekdays vs. weekends in the data.
+
+
+```r
+str(dt_days)
+```
+
+```
+## Classes 'data.table' and 'data.frame':	17568 obs. of  5 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ DOW     : Ord.factor w/ 7 levels "Sunday"<"Monday"<..: 2 2 2 2 2 2 2 2 2 2 ...
+##  $ day_type: Factor w/ 2 levels "weekday","weekend": 1 1 1 1 1 1 1 1 1 1 ...
+##  - attr(*, ".internal.selfref")=<externalptr>
+```
+
+```r
+summary(dt_days)
+```
+
+```
+##      steps             date               interval             DOW      
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0   Sunday   :2304  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8   Monday   :2592  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5   Tuesday  :2592  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5   Wednesday:2592  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2   Thursday :2592  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0   Friday   :2592  
+##  NA's   :2304                                           Saturday :2304  
+##     day_type    
+##  weekday:12960  
+##  weekend: 4608  
+##                 
+##                 
+##                 
+##                 
+## 
+```
+
+### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). (See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.)
+
+Because we're using the original data with NAs, we'll follow our previous pattern of omitting the NA rows. To get the requested averages, we first group by `day_type` (weekday or weekend) and then by `interval` as we did for average interval steps before. We can then get the average steps per interval per type of day.
 
 
 ```r
@@ -452,11 +565,34 @@ dt_days$day_type <- as.factor(dt_days$day_type)
 ## ..      ...      ...       ...
 ```
 
+For consistency, let's check out the summary info for our data.
+
+
+```r
+summary(dit)
+```
+
+```
+##     day_type      interval        avg_steps      
+##  weekday:288   Min.   :   0.0   Min.   :  0.000  
+##  weekend:288   1st Qu.: 588.8   1st Qu.:  1.854  
+##                Median :1177.5   Median : 26.295  
+##                Mean   :1177.5   Mean   : 39.208  
+##                3rd Qu.:1766.2   3rd Qu.: 62.321  
+##                Max.   :2355.0   Max.   :234.103
+```
+
+We can now plot the interval averages per `day_type`. We use `ggplot2`'s facets to create the panel plot of weekday vs. weekend interval averages.
+
+
 ```r
 ggplot(dit, aes(as.factor(interval), avg_steps)) +
     geom_line(aes(group = 1)) +
     scale_x_discrete(breaks = seq(0, 2400, 200)) +
-    facet_grid(day_type ~ .)
+    facet_grid(day_type ~ .) +
+    labs(title = "Average Steps per Interval, Weekday vs. Weekend",
+         x = "Intervals (time of day, 5 minute intervals)",
+         y = "Average steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-17-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-25-1.png) 
