@@ -252,12 +252,12 @@ print(p_ts_filled_stats, vp = vplayout(1, 2))
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-### 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+### 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day. Use the dataset with the filled-in missing values for this part.
 
-We copy our original data table, adding new columns identifying the day of the week (`DOW`) for the `date`, and then categorizing those `DOW`s as either weekday or weekend in a new column for `day_type`. We then factorize those columns, including ordering the `DOW` factors from Sunday to Saturday.
+We copy our imputed data table, adding new columns identifying the day of the week (`DOW`) for the `date`, and then categorizing those `DOW`s as either weekday or weekend in a new column for `day_type`. We then factorize those columns, including ordering the `DOW` factors from Sunday to Saturday.
 
 ```{r}
-(dt_days <- dt %>%
+(dt_days <- dt_filled %>%
     mutate(DOW = weekdays(date)) %>%
     mutate(day_type = ifelse(DOW %in% c("Saturday", "Sunday"), 
                              "weekend", 

@@ -478,13 +478,13 @@ print(p_ts_filled_stats, vp = vplayout(1, 2))
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-### 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+### 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day. Use the dataset with the filled-in missing values for this part.
 
-We copy our original data table, adding new columns identifying the day of the week (`DOW`) for the `date`, and then categorizing those `DOW`s as either weekday or weekend in a new column for `day_type`. We then factorize those columns, including ordering the `DOW` factors from Sunday to Saturday.
+We copy our imputed data table, adding new columns identifying the day of the week (`DOW`) for the `date`, and then categorizing those `DOW`s as either weekday or weekend in a new column for `day_type`. We then factorize those columns, including ordering the `DOW` factors from Sunday to Saturday.
 
 
 ```r
-(dt_days <- dt %>%
+(dt_days <- dt_filled %>%
     mutate(DOW = weekdays(date)) %>%
     mutate(day_type = ifelse(DOW %in% c("Saturday", "Sunday"), 
                              "weekend", 
@@ -503,7 +503,7 @@ str(dt_days)
 
 ```
 ## Classes 'data.table' and 'data.frame':	17568 obs. of  5 variables:
-##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ steps   : int  0 0 0 0 0 0 0 0 0 0 ...
 ##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ##  $ DOW     : Ord.factor w/ 7 levels "Sunday"<"Monday"<..: 2 2 2 2 2 2 2 2 2 2 ...
@@ -516,14 +516,14 @@ summary(dt_days)
 ```
 
 ```
-##      steps             date               interval             DOW      
-##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0   Sunday   :2304  
-##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8   Monday   :2592  
-##  Median :  0.00   Median :2012-10-31   Median :1177.5   Tuesday  :2592  
-##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5   Wednesday:2592  
-##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2   Thursday :2592  
-##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0   Friday   :2592  
-##  NA's   :2304                                           Saturday :2304  
+##      steps          date               interval             DOW      
+##  Min.   :  0   Min.   :2012-10-01   Min.   :   0.0   Sunday   :2304  
+##  1st Qu.:  0   1st Qu.:2012-10-16   1st Qu.: 588.8   Monday   :2592  
+##  Median :  0   Median :2012-10-31   Median :1177.5   Tuesday  :2592  
+##  Mean   : 33   Mean   :2012-10-31   Mean   :1177.5   Wednesday:2592  
+##  3rd Qu.:  8   3rd Qu.:2012-11-15   3rd Qu.:1766.2   Thursday :2592  
+##  Max.   :806   Max.   :2012-11-30   Max.   :2355.0   Friday   :2592  
+##                                                      Saturday :2304  
 ##     day_type    
 ##  weekday:12960  
 ##  weekend: 4608  
@@ -549,19 +549,19 @@ Because we're using the original data with NAs, we'll follow our previous patter
 ## Source: local data table [576 x 3]
 ## Groups: day_type
 ## 
-##    day_type interval avg_steps
-##      (fctr)    (int)     (dbl)
-## 1   weekday        0 2.3333333
-## 2   weekday        5 0.4615385
-## 3   weekday       10 0.1794872
-## 4   weekday       15 0.2051282
-## 5   weekday       20 0.1025641
-## 6   weekday       25 1.5128205
-## 7   weekday       30 0.7179487
-## 8   weekday       35 1.1794872
-## 9   weekday       40 0.0000000
-## 10  weekday       45 1.8461538
-## ..      ...      ...       ...
+##    day_type interval  avg_steps
+##      (fctr)    (int)      (dbl)
+## 1   weekday        0 2.02222222
+## 2   weekday        5 0.40000000
+## 3   weekday       10 0.15555556
+## 4   weekday       15 0.17777778
+## 5   weekday       20 0.08888889
+## 6   weekday       25 1.31111111
+## 7   weekday       30 0.62222222
+## 8   weekday       35 1.02222222
+## 9   weekday       40 0.00000000
+## 10  weekday       45 1.60000000
+## ..      ...      ...        ...
 ```
 
 For consistency, let's check out the summary info for our data.
@@ -574,11 +574,11 @@ summary(dit)
 ```
 ##     day_type      interval        avg_steps      
 ##  weekday:288   Min.   :   0.0   Min.   :  0.000  
-##  weekend:288   1st Qu.: 588.8   1st Qu.:  1.854  
-##                Median :1177.5   Median : 26.295  
-##                Mean   :1177.5   Mean   : 39.208  
-##                3rd Qu.:1766.2   3rd Qu.: 62.321  
-##                Max.   :2355.0   Max.   :234.103
+##  weekend:288   1st Qu.: 588.8   1st Qu.:  1.617  
+##                Median :1177.5   Median : 24.015  
+##                Mean   :1177.5   Mean   : 34.672  
+##                3rd Qu.:1766.2   3rd Qu.: 55.389  
+##                Max.   :2355.0   Max.   :205.422
 ```
 
 We can now plot the interval averages per `day_type`. We use `ggplot2`'s facets to create the panel plot of weekday vs. weekend interval averages.
