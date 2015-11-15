@@ -66,8 +66,8 @@ img {
 </div>
 
 
-<p>Please see <a href="README.md"></a> for a description of this assignment. Also please note that not all of its content is the same as the more up-to-date assignment description on coursera.org—I’ve used the coursera content for step headings and labels.</p>
-<p><strong>One last note</strong>: the default directory for figures in my installation of R/RStudio + knitr is <code>PA1_template_files\figure-html\</code>, not <code>figures\</code> as mentioned in the assignment. I did not change this location.</p>
+<p>Please see <a href="README.md" class="uri">README.md</a> for a description of this assignment. Also please note that not all of its content is the same as the more up-to-date assignment description on coursera.org—I’ve used the coursera content for step headings and labels.</p>
+<p><strong>One more note</strong>: the default directory for figures in my installation of R/RStudio + knitr is <code>PA1_template_files\figure-html\</code>, not <code>figures\</code> as mentioned in the assignment. I did not change this location.</p>
 <div id="loading-and-preprocessing-the-data" class="section level2">
 <h2>Loading and preprocessing the data</h2>
 <div id="load-the-data-i.e.read.csv" class="section level3">
@@ -101,8 +101,7 @@ library(dplyr, warn.conflicts = FALSE)
 <h3>2. Process/transform the data (if necessary) into a format suitable for your analysis</h3>
 <p>We see that the <code>date</code> column is currently just a string, although it is in ISO date format. We convert that column to R’s <code>Date</code> type, and then get a summary view of the data table’s columns. We’re particularly interested in the statistics for the <code>steps</code> column.</p>
 <pre class="r"><code>dt$date &lt;- as.Date(dt$date)
-## dt &lt;- dt %&gt;% 
-##     mutate(time = sprintf(&quot;%02d:%02d&quot;, interval %/% 100, interval %% 100))
+
 summary(dt)</code></pre>
 <pre><code>##      steps             date               interval     
 ##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  

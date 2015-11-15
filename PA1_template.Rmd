@@ -6,9 +6,9 @@ output:
     keep_md: yes
 ---
 
-Please see [](README.md) for a description of this assignment. Also please note that not all of its content is the same as the more up-to-date assignment description on coursera.org---I've used the coursera content for step headings and labels.
+Please see [README.md](README.md) for a description of this assignment. Also please note that not all of its content is the same as the more up-to-date assignment description on coursera.org---I've used the coursera content for step headings and labels.
 
-**One last note**: the default directory for figures in my installation of R/RStudio + knitr is `PA1_template_files\figure-html\`, not `figures\` as mentioned in the assignment. I did not change this location.
+**One more note**: the default directory for figures in my installation of R/RStudio + knitr is `PA1_template_files\figure-html\`, not `figures\` as mentioned in the assignment. I did not change this location.
 
 ## Loading and preprocessing the data
 
@@ -32,8 +32,7 @@ We see that the `date` column is currently just a string, although it is in ISO 
 
 ```{r}
 dt$date <- as.Date(dt$date)
-## dt <- dt %>% 
-##     mutate(time = sprintf("%02d:%02d", interval %/% 100, interval %% 100))
+
 summary(dt)
 ```
 
